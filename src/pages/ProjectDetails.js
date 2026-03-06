@@ -29,6 +29,7 @@ function ProjectDetails() {
       });
   };
 
+  // ✅ FIXED useEffect
   useEffect(() => {
     fetchTasks();
 
@@ -37,7 +38,7 @@ function ProjectDetails() {
         .then((res) => setUsers(res.data.data))
         .catch(() => Swal.fire("Error", "Error loading users", "error"));
     }
-  }, [id]);
+  }, [id, user]);
 
   const createTask = async (e) => {
     e.preventDefault();
@@ -111,7 +112,6 @@ function ProjectDetails() {
               required
             />
 
-            {/* USER DROPDOWN FIXED */}
             <select
               value={assignedUser}
               onChange={(e) => setAssignedUser(e.target.value)}
@@ -126,7 +126,6 @@ function ProjectDetails() {
               ))}
             </select>
 
-            {/* PRIORITY DROPDOWN FIXED */}
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
@@ -151,7 +150,6 @@ function ProjectDetails() {
           </form>
         )}
 
-        {/* TASK LIST */}
         <div style={styles.taskGrid}>
           {tasks.length === 0 ? (
             <p style={{ color: "#fff" }}>No Tasks Found</p>
@@ -231,7 +229,6 @@ const styles = {
     color: "#fff",
   },
 
-  /* 🔥 DROPDOWN FIX */
   select: {
     padding: "10px",
     borderRadius: "8px",
