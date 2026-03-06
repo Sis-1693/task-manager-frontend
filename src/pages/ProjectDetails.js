@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import API from "../services/api";
 import Swal from "sweetalert2";
 
 function ProjectDetails() {
   const { id } = useParams();
+
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -17,7 +18,8 @@ function ProjectDetails() {
 
   const user = JSON.parse(localStorage.getItem("user"));
 
-  const fetchTasks = () => {
+  // ✅ FIXED fetchTasks with useCallback
+  const fetchTasks = useCallback(() => {
     API.get(`/projects/${id}/tasks`)
       .then((res) => {
         setTasks(res.data.data || res.data);
@@ -27,9 +29,9 @@ function ProjectDetails() {
         Swal.fire("Error", "Error loading tasks", "error");
         setLoading(false);
       });
-  };
+  }, [id]);
 
-  // ✅ FIXED useEffect
+  // ✅ FIXED useEffect dependencies
   useEffect(() => {
     fetchTasks();
 
@@ -38,7 +40,7 @@ function ProjectDetails() {
         .then((res) => setUsers(res.data.data))
         .catch(() => Swal.fire("Error", "Error loading users", "error"));
     }
-  }, [id, user]);
+  }, [fetchTasks, user?.role]);
 
   const createTask = async (e) => {
     e.preventDefault();
@@ -69,6 +71,7 @@ function ProjectDetails() {
       setTitle("");
       setDueDate("");
       setAssignedUser("");
+
       fetchTasks();
     } catch {
       Swal.fire("Error", "Error creating task", "error");
@@ -80,6 +83,7 @@ function ProjectDetails() {
       await API.put(`/tasks/${taskId}/status`, {
         status: newStatus,
       });
+
       fetchTasks();
     } catch {
       Swal.fire("Error", "Rule Violation", "error");
@@ -171,6 +175,7 @@ function ProjectDetails() {
                   <option value="TODO">TODO</option>
                   <option value="IN_PROGRESS">IN_PROGRESS</option>
                   <option value="DONE">DONE</option>
+
                   {user?.role === "admin" && (
                     <option value="OVERDUE">OVERDUE</option>
                   )}
@@ -190,7 +195,7 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    background: "linear-gradient(-45deg, #6C63FF, #3F3DFF, #5A54FF, #8F94FB)",
+    background: "linear-gradient(-45deg,#6C63FF,#3F3DFF,#5A54FF,#8F94FB)",
     padding: "40px",
   },
 
@@ -250,7 +255,7 @@ const styles = {
 
   taskGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fill,minmax(250px,1fr))",
     gap: "20px",
   },
 
@@ -265,7 +270,7 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    background: "linear-gradient(-45deg, #6C63FF, #3F3DFF, #5A54FF, #8F94FB)",
+    background: "linear-gradient(-45deg,#6C63FF,#3F3DFF,#5A54FF,#8F94FB)",
   },
 
   loader: {
