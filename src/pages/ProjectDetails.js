@@ -4,6 +4,7 @@ import API from "../services/api";
 import Swal from "sweetalert2";
 
 function ProjectDetails() {
+
   const { id } = useParams();
 
   const [tasks, setTasks] = useState([]);
@@ -16,9 +17,11 @@ function ProjectDetails() {
   const [users, setUsers] = useState([]);
   const [assignedUser, setAssignedUser] = useState("");
 
+  const [editTaskId, setEditTaskId] = useState(null);
+  const [editTitle, setEditTitle] = useState("");
+
   const user = JSON.parse(localStorage.getItem("user"));
 
-  // ✅ FIXED fetchTasks with useCallback
   const fetchTasks = useCallback(() => {
     API.get(`/projects/${id}/tasks`)
       .then((res) => {
@@ -31,8 +34,8 @@ function ProjectDetails() {
       });
   }, [id]);
 
-  // ✅ FIXED useEffect dependencies
   useEffect(() => {
+
     fetchTasks();
 
     if (user?.role === "admin") {
@@ -40,9 +43,13 @@ function ProjectDetails() {
         .then((res) => setUsers(res.data.data))
         .catch(() => Swal.fire("Error", "Error loading users", "error"));
     }
+
   }, [fetchTasks, user?.role]);
 
+
+
   const createTask = async (e) => {
+
     e.preventDefault();
 
     if (!assignedUser) {
@@ -51,6 +58,7 @@ function ProjectDetails() {
     }
 
     try {
+
       await API.post("/tasks", {
         project_id: id,
         user_id: assignedUser,
@@ -73,22 +81,69 @@ function ProjectDetails() {
       setAssignedUser("");
 
       fetchTasks();
+
     } catch {
       Swal.fire("Error", "Error creating task", "error");
     }
+
   };
 
+
+
   const updateStatus = async (taskId, newStatus) => {
+
     try {
+
       await API.put(`/tasks/${taskId}/status`, {
         status: newStatus,
       });
 
       fetchTasks();
+
     } catch {
+
       Swal.fire("Error", "Rule Violation", "error");
+
     }
+
   };
+
+
+
+  const updateTask = async (taskId) => {
+
+    try {
+
+      await API.put(`/tasks/${taskId}`, {
+        title: editTitle,
+      });
+
+      Swal.fire("Success", "Task Updated", "success");
+
+      setEditTaskId(null);
+
+      fetchTasks();
+
+    } catch {
+
+      Swal.fire("Error", "Update failed", "error");
+
+    }
+
+  };
+
+
+
+  const logout = () => {
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    window.location.href = "/login";
+
+  };
+
+
 
   if (loading) {
     return (
@@ -99,14 +154,34 @@ function ProjectDetails() {
     );
   }
 
+
+
   return (
+
     <div style={styles.container}>
+
       <div style={styles.card}>
-        <h1 style={styles.title}>📋 Project Tasks</h1>
+
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+
+          <h1 style={styles.title}>📋 Project Tasks</h1>
+
+          {user?.role === "admin" && (
+            <button onClick={logout} style={styles.button}>
+              Logout
+            </button>
+          )}
+
+        </div>
+
         <p style={styles.subtitle}>Manage and track project progress</p>
 
+
+
         {user?.role === "admin" && (
+
           <form onSubmit={createTask} style={styles.form}>
+
             <input
               type="text"
               placeholder="Task Title"
@@ -123,11 +198,13 @@ function ProjectDetails() {
               required
             >
               <option value="">Select User</option>
+
               {users.map((u) => (
                 <option key={u.id} value={u.id}>
                   {u.name}
                 </option>
               ))}
+
             </select>
 
             <select
@@ -151,19 +228,53 @@ function ProjectDetails() {
             <button type="submit" style={styles.button}>
               ➕ Create Task
             </button>
+
           </form>
+
         )}
 
+
+
         <div style={styles.taskGrid}>
+
           {tasks.length === 0 ? (
+
             <p style={{ color: "#fff" }}>No Tasks Found</p>
+
           ) : (
+
             tasks.map((task) => (
+
               <div key={task.id} style={styles.taskCard}>
-                <h3>{task.title}</h3>
+
+                {editTaskId === task.id ? (
+
+                  <>
+                    <input
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      style={styles.input}
+                    />
+
+                    <button
+                      onClick={() => updateTask(task.id)}
+                      style={styles.button}
+                    >
+                      Save
+                    </button>
+                  </>
+
+                ) : (
+
+                  <h3>{task.title}</h3>
+
+                )}
+
                 <p><b>Status:</b> {task.status}</p>
                 <p><b>Priority:</b> {task.priority}</p>
                 <p><b>Due:</b> {task.due_date}</p>
+
+
 
                 <select
                   value={task.status}
@@ -172,6 +283,7 @@ function ProjectDetails() {
                   }
                   style={styles.select}
                 >
+
                   <option value="TODO">TODO</option>
                   <option value="IN_PROGRESS">IN_PROGRESS</option>
                   <option value="DONE">DONE</option>
@@ -179,17 +291,45 @@ function ProjectDetails() {
                   {user?.role === "admin" && (
                     <option value="OVERDUE">OVERDUE</option>
                   )}
+
                 </select>
+
+
+
+                {user?.role === "admin" && (
+
+                  <button
+                    onClick={() => {
+                      setEditTaskId(task.id);
+                      setEditTitle(task.title);
+                    }}
+                    style={styles.button}
+                  >
+                    Edit
+                  </button>
+
+                )}
+
               </div>
+
             ))
+
           )}
+
         </div>
+
       </div>
+
     </div>
+
   );
+
 }
 
+
+
 const styles = {
+
   container: {
     minHeight: "100vh",
     display: "flex",
@@ -280,6 +420,7 @@ const styles = {
     borderTop: "4px solid #fff",
     borderRadius: "50%",
   },
+
 };
 
 export default ProjectDetails;
