@@ -36,6 +36,8 @@ function ProjectDetails() {
       });
   }, [id]);
 
+
+
   useEffect(() => {
 
     fetchTasks();
@@ -46,7 +48,7 @@ function ProjectDetails() {
         .catch(() => Swal.fire("Error", "Error loading users", "error"));
     }
 
-  }, [fetchTasks]);
+  }, [fetchTasks, user?.role]);   // ✅ FIXED
 
 
 
@@ -351,94 +353,84 @@ function ProjectDetails() {
   );
 
 }
+
+
+
 const styles = {
-
-  container: {
-    minHeight: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    background: "linear-gradient(-45deg,#6C63FF,#3F3DFF,#5A54FF,#8F94FB)",
-    padding: "40px",
+  container:{
+    minHeight:"100vh",
+    display:"flex",
+    justifyContent:"center",
+    alignItems:"center",
+    background:"linear-gradient(-45deg,#6C63FF,#3F3DFF,#5A54FF,#8F94FB)",
+    padding:"40px"
   },
 
-  card: {
-    width: "1000px",
-    padding: "40px",
-    borderRadius: "20px",
-    background: "rgba(255,255,255,0.15)",
-    backdropFilter: "blur(15px)",
-    boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
-    color: "#fff",
+  card:{
+    width:"1000px",
+    padding:"40px",
+    borderRadius:"20px",
+    background:"rgba(255,255,255,0.15)",
+    backdropFilter:"blur(15px)",
+    boxShadow:"0 8px 32px rgba(0,0,0,0.2)",
+    color:"#fff"
   },
 
-  title: {
-    marginBottom: "10px",
+  form:{
+    display:"flex",
+    gap:"15px",
+    flexWrap:"wrap",
+    marginBottom:"30px"
   },
 
-  subtitle: {
-    marginBottom: "30px",
-    fontSize: "14px",
+  input:{
+    padding:"10px",
+    borderRadius:"8px",
+    border:"none"
   },
 
-  form: {
-    display: "flex",
-    gap: "15px",
-    flexWrap: "wrap",
-    marginBottom: "30px",
+  select:{
+    padding:"10px",
+    borderRadius:"8px",
+    border:"none"
   },
 
-  input: {
-    padding: "10px",
-    borderRadius: "8px",
-    border: "none",
-    outline: "none",
+  button:{
+    padding:"10px 20px",
+    borderRadius:"20px",
+    border:"none",
+    background:"#fff",
+    color:"#6C63FF",
+    cursor:"pointer"
   },
 
-  select: {
-    padding: "10px",
-    borderRadius: "8px",
-    border: "none",
+  taskGrid:{
+    display:"grid",
+    gridTemplateColumns:"repeat(auto-fill,minmax(250px,1fr))",
+    gap:"20px"
   },
 
-  button: {
-    padding: "10px 20px",
-    borderRadius: "20px",
-    border: "none",
-    background: "#fff",
-    color: "#6C63FF",
-    cursor: "pointer",
-    fontWeight: "600",
+  taskCard:{
+    background:"rgba(255,255,255,0.2)",
+    padding:"20px",
+    borderRadius:"12px"
   },
 
-  taskGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill,minmax(250px,1fr))",
-    gap: "20px",
+  loaderContainer:{
+    height:"100vh",
+    display:"flex",
+    justifyContent:"center",
+    alignItems:"center",
+    background:"linear-gradient(-45deg,#6C63FF,#3F3DFF,#5A54FF,#8F94FB)"
   },
 
-  taskCard: {
-    background: "rgba(255,255,255,0.2)",
-    padding: "20px",
-    borderRadius: "12px",
-  },
-
-  loaderContainer: {
-    height: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    background: "linear-gradient(-45deg,#6C63FF,#3F3DFF,#5A54FF,#8F94FB)",
-  },
-
-  loader: {
-    width: "40px",
-    height: "40px",
-    border: "4px solid rgba(255,255,255,0.3)",
-    borderTop: "4px solid #fff",
-    borderRadius: "50%",
-  },
-
+  loader:{
+    width:"40px",
+    height:"40px",
+    border:"4px solid rgba(255,255,255,0.3)",
+    borderTop:"4px solid #fff",
+    borderRadius:"50%"
+  }
 };
 
 export default ProjectDetails;
