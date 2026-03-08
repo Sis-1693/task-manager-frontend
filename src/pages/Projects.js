@@ -22,7 +22,6 @@ function Projects() {
     try {
 
       const res = await API.get("/projects");
-
       setProjects(res.data.data);
       setLoading(false);
 
@@ -110,10 +109,29 @@ function Projects() {
 
   };
 
+  // LOGOUT
+  const logout = () => {
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    Swal.fire({
+      title: "Logged Out",
+      icon: "success",
+      timer: 1200,
+      showConfirmButton: false
+    });
+
+    setTimeout(() => {
+      navigate("/");
+    }, 1200);
+
+  };
+
   if (loading) {
     return (
-      <div style={{ textAlign: "center", marginTop: "100px" }}>
-        Loading Projects...
+      <div style={styles.loaderContainer}>
+        <p style={{ color: "#fff" }}>Loading Projects...</p>
       </div>
     );
   }
@@ -124,14 +142,26 @@ function Projects() {
 
       <div style={styles.card}>
 
-        <h1>📁 Project Manager</h1>
-        <p>Select a project to manage tasks</p>
+        <div style={styles.header}>
+
+          <h1 style={styles.title}>📁 Project Manager</h1>
+
+          <button onClick={logout} style={styles.logoutBtn}>
+            Logout
+          </button>
+
+        </div>
+
+        <p style={styles.subtitle}>
+          Select a project to manage tasks
+        </p>
 
         {/* CREATE PROJECT */}
 
         <div style={styles.form}>
 
           <input
+            type="text"
             placeholder="Project Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -139,6 +169,7 @@ function Projects() {
           />
 
           <input
+            type="text"
             placeholder="Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -151,47 +182,41 @@ function Projects() {
 
         </div>
 
-        {/* PROJECT LIST */}
-
         {projects.length === 0 ? (
 
-          <p>No Projects Found</p>
+          <p style={{ color: "#fff" }}>No Projects Found</p>
 
         ) : (
 
-          <div style={styles.grid}>
+          <div style={styles.projectList}>
 
             {projects.map((p) => (
 
               <div
                 key={p.id}
-                style={styles.cardProject}
                 onClick={() => navigate(`/projects/${p.id}`)}
+                style={styles.projectCard}
               >
 
                 <h3>{p.title}</h3>
 
                 <p>
-                  {p.description ? p.description : "No description"}
+                  {p.description
+                    ? p.description.substring(0, 80)
+                    : "No description"}
                 </p>
 
-                <span style={{ fontSize: "12px" }}>
-                  Open →
-                </span>
+                <span>Open →</span>
 
-                <div>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      editProject(p);
-                    }}
-                    style={styles.editBtn}
-                  >
-                    Edit
-                  </button>
-
-                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    editProject(p);
+                  }}
+                  style={styles.editBtn}
+                >
+                  Edit
+                </button>
 
               </div>
 
@@ -225,8 +250,28 @@ const styles = {
     borderRadius: "20px",
     background: "rgba(255,255,255,0.15)",
     backdropFilter: "blur(15px)",
-    color: "#fff",
-    textAlign: "center"
+    color: "#fff"
+  },
+
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center"
+  },
+
+  title: {
+    marginBottom: "10px"
+  },
+
+  subtitle: {
+    marginBottom: "25px"
+  },
+
+  logoutBtn: {
+    padding: "8px 16px",
+    borderRadius: "20px",
+    border: "none",
+    cursor: "pointer"
   },
 
   form: {
@@ -247,13 +292,13 @@ const styles = {
     cursor: "pointer"
   },
 
-  grid: {
+  projectList: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill,minmax(250px,1fr))",
     gap: "20px"
   },
 
-  cardProject: {
+  projectCard: {
     background: "rgba(255,255,255,0.2)",
     padding: "20px",
     borderRadius: "12px",
@@ -264,6 +309,13 @@ const styles = {
     marginTop: "10px",
     padding: "5px 10px",
     cursor: "pointer"
+  },
+
+  loaderContainer: {
+    height: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center"
   }
 
 };
