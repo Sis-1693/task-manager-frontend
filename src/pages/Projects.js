@@ -22,10 +22,11 @@ function Projects() {
     try {
 
       const res = await API.get("/projects");
+
       setProjects(res.data.data);
       setLoading(false);
 
-    } catch (err) {
+    } catch {
 
       Swal.fire("Error", "Unauthorized or Server Error", "error");
       setLoading(false);
@@ -142,6 +143,8 @@ function Projects() {
 
       <div style={styles.card}>
 
+        {/* HEADER */}
+
         <div style={styles.header}>
 
           <h1 style={styles.title}>📁 Project Manager</h1>
@@ -181,6 +184,8 @@ function Projects() {
           </button>
 
         </div>
+
+        {/* PROJECT LIST */}
 
         {projects.length === 0 ? (
 
@@ -256,11 +261,12 @@ const styles = {
   header: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center"
+    alignItems: "center",
+    marginBottom: "10px"
   },
 
   title: {
-    marginBottom: "10px"
+    margin: 0
   },
 
   subtitle: {
@@ -268,9 +274,10 @@ const styles = {
   },
 
   logoutBtn: {
-    padding: "8px 16px",
+    padding: "8px 18px",
     borderRadius: "20px",
     border: "none",
+    background: "#fff",
     cursor: "pointer"
   },
 
