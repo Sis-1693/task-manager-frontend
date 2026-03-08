@@ -1,11 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import API from "../services/api";
 import Swal from "sweetalert2";
 
 function ProjectDetails() {
 
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,8 +37,6 @@ function ProjectDetails() {
       });
   }, [id]);
 
-
-
   useEffect(() => {
 
     fetchTasks();
@@ -48,9 +47,7 @@ function ProjectDetails() {
         .catch(() => Swal.fire("Error", "Error loading users", "error"));
     }
 
-  }, [fetchTasks, user?.role]);   // ✅ FIXED
-
-
+  }, [fetchTasks, user?.role]);
 
   const createTask = async (e) => {
 
@@ -90,8 +87,6 @@ function ProjectDetails() {
 
   };
 
-
-
   const updateStatus = async (taskId, newStatus) => {
 
     try {
@@ -109,8 +104,6 @@ function ProjectDetails() {
     }
 
   };
-
-
 
   const updateTask = async (taskId) => {
 
@@ -136,18 +129,23 @@ function ProjectDetails() {
 
   };
 
-
-
   const logout = () => {
 
     localStorage.removeItem("token");
     localStorage.removeItem("user");
 
-    window.location.href = "/login";
+    Swal.fire({
+      title: "Logged Out",
+      icon: "success",
+      timer: 1200,
+      showConfirmButton: false
+    });
+
+    setTimeout(() => {
+      navigate("/");
+    }, 1200);
 
   };
-
-
 
   if (loading) {
     return (
@@ -157,8 +155,6 @@ function ProjectDetails() {
       </div>
     );
   }
-
-
 
   return (
 
@@ -177,8 +173,6 @@ function ProjectDetails() {
         </div>
 
         <p style={styles.subtitle}>Manage and track project progress</p>
-
-
 
         {user?.role === "admin" && (
 
@@ -235,8 +229,6 @@ function ProjectDetails() {
 
         )}
 
-
-
         <div style={styles.taskGrid}>
 
           {tasks.length === 0 ? (
@@ -277,40 +269,9 @@ function ProjectDetails() {
 
                 </div>
 
+                <p><b>Priority:</b> {task.priority}</p>
 
-                <p>
-                  <b>Priority:</b>
-
-                  {editTaskId === task.id ? (
-                    <select
-                      value={editPriority}
-                      onChange={(e)=>setEditPriority(e.target.value)}
-                      style={styles.select}
-                    >
-                      <option value="LOW">LOW</option>
-                      <option value="MEDIUM">MEDIUM</option>
-                      <option value="HIGH">HIGH</option>
-                    </select>
-                  ) : task.priority}
-
-                </p>
-
-
-                <p>
-                  <b>Due:</b>
-
-                  {editTaskId === task.id ? (
-                    <input
-                      type="date"
-                      value={editDueDate}
-                      onChange={(e)=>setEditDueDate(e.target.value)}
-                      style={styles.input}
-                    />
-                  ) : task.due_date}
-
-                </p>
-
-
+                <p><b>Due:</b> {task.due_date}</p>
 
                 <select
                   value={task.status}
@@ -320,14 +281,7 @@ function ProjectDetails() {
                   <option value="TODO">TODO</option>
                   <option value="IN_PROGRESS">IN_PROGRESS</option>
                   <option value="DONE">DONE</option>
-
-                  {user?.role === "admin" && (
-                    <option value="OVERDUE">OVERDUE</option>
-                  )}
-
                 </select>
-
-
 
                 {editTaskId === task.id && (
                   <button
@@ -353,84 +307,5 @@ function ProjectDetails() {
   );
 
 }
-
-
-
-const styles = {
-  container:{
-    minHeight:"100vh",
-    display:"flex",
-    justifyContent:"center",
-    alignItems:"center",
-    background:"linear-gradient(-45deg,#6C63FF,#3F3DFF,#5A54FF,#8F94FB)",
-    padding:"40px"
-  },
-
-  card:{
-    width:"1000px",
-    padding:"40px",
-    borderRadius:"20px",
-    background:"rgba(255,255,255,0.15)",
-    backdropFilter:"blur(15px)",
-    boxShadow:"0 8px 32px rgba(0,0,0,0.2)",
-    color:"#fff"
-  },
-
-  form:{
-    display:"flex",
-    gap:"15px",
-    flexWrap:"wrap",
-    marginBottom:"30px"
-  },
-
-  input:{
-    padding:"10px",
-    borderRadius:"8px",
-    border:"none"
-  },
-
-  select:{
-    padding:"10px",
-    borderRadius:"8px",
-    border:"none"
-  },
-
-  button:{
-    padding:"10px 20px",
-    borderRadius:"20px",
-    border:"none",
-    background:"#fff",
-    color:"#6C63FF",
-    cursor:"pointer"
-  },
-
-  taskGrid:{
-    display:"grid",
-    gridTemplateColumns:"repeat(auto-fill,minmax(250px,1fr))",
-    gap:"20px"
-  },
-
-  taskCard:{
-    background:"rgba(255,255,255,0.2)",
-    padding:"20px",
-    borderRadius:"12px"
-  },
-
-  loaderContainer:{
-    height:"100vh",
-    display:"flex",
-    justifyContent:"center",
-    alignItems:"center",
-    background:"linear-gradient(-45deg,#6C63FF,#3F3DFF,#5A54FF,#8F94FB)"
-  },
-
-  loader:{
-    width:"40px",
-    height:"40px",
-    border:"4px solid rgba(255,255,255,0.3)",
-    borderTop:"4px solid #fff",
-    borderRadius:"50%"
-  }
-};
 
 export default ProjectDetails;
