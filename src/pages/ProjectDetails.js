@@ -20,12 +20,13 @@ function ProjectDetails() {
 
   const [editTaskId, setEditTaskId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
-  const [editPriority, setEditPriority] = useState("");
+  const [editPriority, setEditPriority] = useState("LOW");
   const [editDueDate, setEditDueDate] = useState("");
 
   const user = JSON.parse(localStorage.getItem("user"));
 
   const fetchTasks = useCallback(() => {
+
     API.get(`/projects/${id}/tasks`)
       .then((res) => {
         setTasks(res.data.data || res.data);
@@ -35,6 +36,7 @@ function ProjectDetails() {
         Swal.fire("Error", "Error loading tasks", "error");
         setLoading(false);
       });
+
   }, [id]);
 
   useEffect(() => {
@@ -48,6 +50,8 @@ function ProjectDetails() {
     }
 
   }, [fetchTasks, user?.role]);
+
+
 
   const createTask = async (e) => {
 
@@ -65,13 +69,13 @@ function ProjectDetails() {
         user_id: assignedUser,
         title,
         priority,
-        due_date: dueDate,
+        due_date: dueDate
       });
 
       Swal.fire({
         icon: "success",
         title: "Task Created",
-        timer: 1500,
+        timer: 1200,
         showConfirmButton: false
       });
 
@@ -82,28 +86,32 @@ function ProjectDetails() {
       fetchTasks();
 
     } catch {
-      Swal.fire("Error", "Error creating task", "error");
+
+      Swal.fire("Error", "Task create failed", "error");
+
     }
 
   };
 
-  const updateStatus = async (taskId, newStatus) => {
+
+
+  const updateStatus = async (taskId, status) => {
 
     try {
 
-      await API.put(`/tasks/${taskId}/status`, {
-        status: newStatus,
-      });
+      await API.put(`/tasks/${taskId}/status`, { status });
 
       fetchTasks();
 
     } catch {
 
-      Swal.fire("Error", "Rule Violation", "error");
+      Swal.fire("Error", "Status update failed", "error");
 
     }
 
   };
+
+
 
   const updateTask = async (taskId) => {
 
@@ -129,14 +137,16 @@ function ProjectDetails() {
 
   };
 
+
+
   const logout = () => {
 
     localStorage.removeItem("token");
     localStorage.removeItem("user");
 
     Swal.fire({
-      title: "Logged Out",
       icon: "success",
+      title: "Logged Out",
       timer: 1200,
       showConfirmButton: false
     });
@@ -147,6 +157,8 @@ function ProjectDetails() {
 
   };
 
+
+
   if (loading) {
     return (
       <div style={styles.loaderContainer}>
@@ -156,6 +168,8 @@ function ProjectDetails() {
     );
   }
 
+
+
   return (
 
     <div style={styles.container}>
@@ -164,7 +178,7 @@ function ProjectDetails() {
 
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
 
-          <h1 style={styles.title}>📋 Project Tasks</h1>
+          <h1>📋 Project Tasks</h1>
 
           <button onClick={logout} style={styles.button}>
             Logout
@@ -172,7 +186,9 @@ function ProjectDetails() {
 
         </div>
 
-        <p style={styles.subtitle}>Manage and track project progress</p>
+        <p>Manage and track project progress</p>
+
+
 
         {user?.role === "admin" && (
 
@@ -182,20 +198,21 @@ function ProjectDetails() {
               type="text"
               placeholder="Task Title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e)=>setTitle(e.target.value)}
               style={styles.input}
               required
             />
 
             <select
               value={assignedUser}
-              onChange={(e) => setAssignedUser(e.target.value)}
+              onChange={(e)=>setAssignedUser(e.target.value)}
               style={styles.select}
               required
             >
+
               <option value="">Select User</option>
 
-              {users.map((u) => (
+              {users.map((u)=>(
                 <option key={u.id} value={u.id}>
                   {u.name}
                 </option>
@@ -205,18 +222,20 @@ function ProjectDetails() {
 
             <select
               value={priority}
-              onChange={(e) => setPriority(e.target.value)}
+              onChange={(e)=>setPriority(e.target.value)}
               style={styles.select}
             >
+
               <option value="LOW">LOW</option>
               <option value="MEDIUM">MEDIUM</option>
               <option value="HIGH">HIGH</option>
+
             </select>
 
             <input
               type="date"
               value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
+              onChange={(e)=>setDueDate(e.target.value)}
               style={styles.input}
               required
             />
@@ -229,67 +248,124 @@ function ProjectDetails() {
 
         )}
 
+
+
         <div style={styles.taskGrid}>
 
           {tasks.length === 0 ? (
 
-            <p style={{ color: "#fff" }}>No Tasks Found</p>
+            <p style={{color:"#fff"}}>No Tasks Found</p>
 
           ) : (
 
-            tasks.map((task) => (
+            tasks.map((task)=>(
 
               <div key={task.id} style={styles.taskCard}>
 
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div style={{display:"flex",justifyContent:"space-between"}}>
 
                   {editTaskId === task.id ? (
+
                     <input
                       value={editTitle}
-                      onChange={(e) => setEditTitle(e.target.value)}
+                      onChange={(e)=>setEditTitle(e.target.value)}
                       style={styles.input}
                     />
+
                   ) : (
+
                     <h3>{task.title}</h3>
+
                   )}
 
                   {user?.role === "admin" && (
+
                     <button
-                      onClick={() => {
+                      style={styles.button}
+                      onClick={()=>{
+
                         setEditTaskId(task.id);
                         setEditTitle(task.title);
                         setEditPriority(task.priority);
                         setEditDueDate(task.due_date);
+
                       }}
-                      style={styles.button}
                     >
                       Edit
                     </button>
+
                   )}
 
                 </div>
 
-                <p><b>Priority:</b> {task.priority}</p>
 
-                <p><b>Due:</b> {task.due_date}</p>
+
+                <p>
+
+                  <b>Priority:</b>
+
+                  {editTaskId === task.id ? (
+
+                    <select
+                      value={editPriority}
+                      onChange={(e)=>setEditPriority(e.target.value)}
+                      style={styles.select}
+                    >
+
+                      <option value="LOW">LOW</option>
+                      <option value="MEDIUM">MEDIUM</option>
+                      <option value="HIGH">HIGH</option>
+
+                    </select>
+
+                  ) : task.priority}
+
+                </p>
+
+
+
+                <p>
+
+                  <b>Due:</b>
+
+                  {editTaskId === task.id ? (
+
+                    <input
+                      type="date"
+                      value={editDueDate}
+                      onChange={(e)=>setEditDueDate(e.target.value)}
+                      style={styles.input}
+                    />
+
+                  ) : task.due_date}
+
+                </p>
+
+
 
                 <select
                   value={task.status}
                   onChange={(e)=>updateStatus(task.id,e.target.value)}
                   style={styles.select}
                 >
+
                   <option value="TODO">TODO</option>
                   <option value="IN_PROGRESS">IN_PROGRESS</option>
                   <option value="DONE">DONE</option>
+
                 </select>
 
+
+
                 {editTaskId === task.id && (
+
                   <button
-                    onClick={() => updateTask(task.id)}
                     style={styles.button}
+                    onClick={()=>updateTask(task.id)}
                   >
                     Save
                   </button>
+
                 )}
 
               </div>
@@ -307,6 +383,9 @@ function ProjectDetails() {
   );
 
 }
+
+
+
 const styles = {
 
   container:{
@@ -326,14 +405,6 @@ const styles = {
     backdropFilter:"blur(15px)",
     boxShadow:"0 8px 32px rgba(0,0,0,0.2)",
     color:"#fff"
-  },
-
-  title:{
-    marginBottom:"10px"
-  },
-
-  subtitle:{
-    marginBottom:"20px"
   },
 
   form:{
